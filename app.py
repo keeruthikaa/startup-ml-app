@@ -251,7 +251,7 @@ with tab1:
 
         tier_row = raw_stats["tier_df"][raw_stats["tier_df"]["tier"]==tier]
         t_sr   = float(tier_row["avg_success_rate"].values[0]) if len(tier_row) else 0.015
-        t_fund = float(tier_row["avg_fund"].values[0]) if len(tier_row) else c_avg
+        t_fund = float(tier_row["Amount in USD"].values[0]) if len(tier_row) else c_avg
 
         # verdict
         if ensemble>=0.60:   vc,vi,vt="#10B981","🟢","HIGH POTENTIAL"
@@ -554,7 +554,7 @@ with tab3:
               <div style='color:{tc};font-weight:800;font-size:1rem;'>{row["tier"]}</div>
               <div style='color:#fff;font-size:1.6rem;font-weight:700;'>{row["total_startups"]:,}</div>
               <div style='color:#A0B0FF;font-size:.8rem;'>startups</div>
-              <div style='color:#7DF9C8;font-weight:700;margin-top:6px;'>{fmt_inr(row["avg_fund"])}</div>
+              <div style='color:#7DF9C8;font-weight:700;margin-top:6px;'>{fmt_inr(row["Amount in USD"])}</div>
               <div style='color:#A0B0FF;font-size:.8rem;'>avg funding</div>
               <div style='color:#F59E0B;font-weight:700;'>{row["avg_success_rate"]*100:.1f}%</div>
               <div style='color:#A0B0FF;font-size:.8rem;'>success rate</div>
@@ -566,9 +566,9 @@ with tab3:
     tc1,tc2 = st.columns(2)
     with tc1:
         fig_tf = go.Figure(go.Bar(
-            x=tier_df["tier"],y=tier_df["avg_fund"],
+            x=tier_df["tier"],y=tier_df["Amount in USD"],
             marker_color=[tier_color(t) for t in tier_df["tier"]],
-            text=[fmt_inr(v) for v in tier_df["avg_fund"]],
+            text=[fmt_inr(v) for v in tier_df["Amount in USD"]],
             textposition="outside",textfont=dict(color="#fff",size=11)))
         fig_tf.update_layout(
             title=dict(text="💰 Avg Funding by City Tier",font=dict(color="#A0B0FF",size=14)),
@@ -593,19 +593,20 @@ with tab3:
     # Bubble chart — all cities
     top20 = city_df.nlargest(20,"count").copy()
     fig_b = px.scatter(
-        top20, x="avg_fund", y="success_rate",
+        top20, x="Amount in USD", y="Success",
         size="count", color="tier",
         hover_name="city_name",
         text=top20["city_name"].str[:12],
         color_discrete_map={"Tier 1":"#4F63D2","Tier 2":"#06B6D4","Tier 3":"#10B981",
                              "International":"#F59E0B","Other":"#6B7280"},
         size_max=55,
-        labels={"avg_fund":"Avg Funding","success_rate":"Success Rate","count":"# Startups"},
+        labels={"Amount in USD":"Avg Funding","Success":"Success Rate","count":"# Startups"},
         title="🗺️ City Intelligence Map (size = # startups, colour = tier)")
     fig_b.update_traces(textposition="top center",textfont=dict(color="#fff",size=9))
-    fig_b.update_layout(paper_bgcolor="#060D26",plot_bgcolor="#060D26",font_color="#fff",
-                        height=460,margin=dict(t=60,b=40,l=40,r=20),
-                        xaxis=dict(showgrid=True,gridcolor="#1e2a50",color="#A0B0FF",tickformat=","),
+    fig_b.update_layout(paper_bgcolor="#0
+    60D26",plot_bgcolor="#060D26",font_color="#fff",
+     height=460,margin=dict(t=60,b=40,l=40,r=20),
+ xaxis=dict(showgrid=True,gridcolor="#1e2a50",color="#A0B0FF",tickformat=","),
                         yaxis=dict(showgrid=True,gridcolor="#1e2a50",color="#A0B0FF",tickformat=".1%"),
                         legend=dict(bgcolor="#060D26",bordercolor="#2a3060"))
     st.plotly_chart(fig_b, use_container_width=True)
@@ -631,12 +632,12 @@ with tab4:
     ind_df = raw_stats["ind_df"].copy()
     n = st.slider("Industries to show", 5, 20, 12)
 
-    top_f = ind_df.nlargest(n,"avg_fund")
+    top_f = ind_df.nlargest(n,"Amount in USD")
     fig_if = go.Figure(go.Bar(
-        x=top_f["avg_fund"],y=[s[:35] for s in top_f["industry"]],
+        x=top_f["Amount in USD"],y=[s[:35] for s in top_f["Industry Vertical"]],
         orientation="h",
         marker_color=PALETTE*(n//len(PALETTE)+1),
-        text=[fmt_inr(v) for v in top_f["avg_fund"]],
+        text=[fmt_inr(v) for v in top_f["Amount in USD"]],
         textposition="outside",textfont=dict(color="#fff",size=10)))
     fig_if.update_layout(
         title=dict(text=f"💰 Top {n} Industries by Avg Funding",font=dict(color="#A0B0FF",size=14)),
@@ -649,7 +650,7 @@ with tab4:
     with ia1:
         top_c = ind_df.nlargest(n,"count").sort_values("count")
         fig_ic = go.Figure(go.Bar(
-            y=[s[:30] for s in top_c["industry"]],x=top_c["count"],
+            y=[s[:30] for s in top_c["Industry Vertical"]],x=top_c["count"],
             orientation="h",marker_color="#4F63D2",
             text=top_c["count"],textposition="outside",textfont=dict(color="#fff",size=10)))
         fig_ic.update_layout(
@@ -661,8 +662,8 @@ with tab4:
 
     with ia2:
         top_t = ind_df.nlargest(20,"count")
-        fig_tree = px.treemap(top_t,path=["industry"],values="count",
-                              color="avg_fund",
+        fig_tree = px.treemap(top_t,path=["Industry Vertical"],values="count",
+                              color="Amount in USD",
                               color_continuous_scale=["#0D1128","#4F63D2","#7C3AED","#EC4899"],
                               title="🗂️ Industry Treemap")
         fig_tree.update_layout(paper_bgcolor="#060D26",font_color="#fff",height=400,
@@ -673,10 +674,10 @@ with tab4:
     # Scatter: funding vs success
     top_sc = ind_df.nlargest(30,"count")
     fig_sc = px.scatter(
-        top_sc,x="avg_fund",y="success_rate",size="count",color="avg_fund",
-        text=[s[:18] for s in top_sc["industry"]],
+        top_sc,x="Amount in USD",y="Success",size="count",color="Amount in USD",
+        text=[s[:18] for s in top_sc["Industry Vertical"]],
         color_continuous_scale=["#4F63D2","#7C3AED","#EC4899"],
-        labels={"avg_fund":"Avg Funding","success_rate":"Success Rate","count":"# Startups"},
+        labels={"Amount in USD":"Avg Funding","Success":"Success Rate","count":"# Startups"},
         title="🔬 Industry Landscape — Funding vs. Success Rate",size_max=50)
     fig_sc.update_traces(textposition="top center",textfont=dict(color="#fff",size=9))
     fig_sc.update_layout(paper_bgcolor="#060D26",plot_bgcolor="#060D26",font_color="#fff",
@@ -707,9 +708,9 @@ with tab5:
 
     with o2:
         fig_bsr = go.Figure(go.Bar(
-            x=bd["bucket"].astype(str),y=bd["success_rate"]*100,
-            marker_color=["#10B981" if v>0.02 else "#4F63D2" for v in bd["success_rate"]],
-            text=[f"{v*100:.1f}%" for v in bd["success_rate"]],
+            x=bd["bucket"].astype(str),y=bd["Success"]*100,
+            marker_color=["#10B981" if v>0.02 else "#4F63D2" for v in bd["Success"]],
+            text=[f"{v*100:.1f}%" for v in bd["Success"]],
             textposition="outside",textfont=dict(color="#fff",size=11)))
         fig_bsr.update_layout(
             title=dict(text="✅ Success Rate by Funding Bucket",font=dict(color="#A0B0FF",size=14)),
@@ -720,11 +721,11 @@ with tab5:
         st.plotly_chart(fig_bsr, use_container_width=True)
 
     # Top cities by avg funding
-    top_cf = raw_stats["city_df"].nlargest(10,"avg_fund").sort_values("avg_fund")
+    top_cf = raw_stats["city_df"].nlargest(10,"Amount in USD").sort_values("Amount in USD")
     fig_cf = go.Figure(go.Bar(
-        y=top_cf["city_name"],x=top_cf["avg_fund"],orientation="h",
+        y=top_cf["city_name"],x=top_cf["Amount in USD"],orientation="h",
         marker_color=[tier_color(t) for t in top_cf["tier"]],
-        text=[fmt_inr(v) for v in top_cf["avg_fund"]],
+        text=[fmt_inr(v) for v in top_cf["Amount in USD"]],
         textposition="outside",textfont=dict(color="#fff",size=11)))
     fig_cf.update_layout(
         title=dict(text="💰 Top 10 Cities by Avg Funding per Startup",font=dict(color="#A0B0FF",size=14)),
