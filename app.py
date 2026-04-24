@@ -603,8 +603,7 @@ with tab3:
         labels={"Amount in USD":"Avg Funding","Success":"Success Rate","count":"# Startups"},
         title="🗺️ City Intelligence Map (size = # startups, colour = tier)")
     fig_b.update_traces(textposition="top center",textfont=dict(color="#fff",size=9))
-    fig_b.update_layout(paper_bgcolor="#0
-    60D26",plot_bgcolor="#060D26",font_color="#fff",
+    fig_b.update_layout(paper_bgcolor="#060D26",plot_bgcolor="#060D26",font_color="#fff",
      height=460,margin=dict(t=60,b=40,l=40,r=20),
  xaxis=dict(showgrid=True,gridcolor="#1e2a50",color="#A0B0FF",tickformat=","),
                         yaxis=dict(showgrid=True,gridcolor="#1e2a50",color="#A0B0FF",tickformat=".1%"),
@@ -621,7 +620,7 @@ with tab3:
         title=dict(text="🏙️ Top 10 Cities by Startup Volume",font=dict(color="#A0B0FF",size=14)),
         paper_bgcolor="#060D26",plot_bgcolor="#060D26",font_color="#fff",height=360,
         xaxis=dict(showgrid=True,gridcolor="#1e2a50",color="#A0B0FF"),
-        yaxis=dict(color="#D0DBFF"),margin=dict(t=50,b=30,l=10,r=60))
+        yaxis=dict(color= 60D26","#D0DBFF"),margin=dict(t=50,b=30,l=10,r=60))
     st.plotly_chart(fig_h, use_container_width=True)
 
 # ─────────────────────────────────────────────────────────────────
