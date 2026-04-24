@@ -1,3 +1,4 @@
+import streamlit as st
 import os
 if not os.path.exists("models.pkl"):
     os.system("python train.py")
